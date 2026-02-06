@@ -1,5 +1,6 @@
 using PlatformService.Data;
 using Microsoft.EntityFrameworkCore;
+using PlatformService.SyncDataServices.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -10,6 +11,7 @@ services.AddOpenApi();
 services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
 
 services.AddScoped<IPlatformRepo, PlatformRepo>();
+services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();

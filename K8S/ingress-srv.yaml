@@ -1,0 +1,36 @@
+kind: Gateway
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  name: http
+  namespace: kgateway-system
+spec:
+  gatewayClassName: kgateway
+  listeners:
+  - protocol: HTTP
+    port: 8080
+    name: http
+    allowedRoutes:
+      namespaces:
+        from: All
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: httproute
+spec:
+  parentRefs:
+    - name: http
+      namespace: kgateway-system
+  hostnames:
+    - "milesmbo.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/c/platforms
+    backendRefs:
+      - name: commands-clusterip-srv
+        port: 8080
+  - backendRefs:
+    - name: platforms-clusterip-srv # clusterip service name maybe?
+      port: 8080
