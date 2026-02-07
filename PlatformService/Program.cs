@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using PlatformService.SyncDataServices.Http;
 using Microsoft.OpenApi;
 using PlatformService.AsyncDataServices;
+using PlatformService.SyncDataServices.Grpc;
 ;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ else
 services.AddScoped<IPlatformRepo, PlatformRepo>();
 services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 services.AddSingleton<IMessageBusClient, MessageBusAdapter>();
+services.AddGrpc();
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -50,6 +52,11 @@ app.UseHttpsRedirection();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
+    endpoints.MapGrpcService<GrpcPlatformService>();
+    endpoints.MapGet("/protos/platforms.proto", async context =>
+    {
+        await context.Response.WriteAsync(File.ReadAllText("Protos/platforms.proto"));
+    });
 });
 
 var summaries = new[]

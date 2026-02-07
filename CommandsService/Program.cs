@@ -1,6 +1,7 @@
 using CommandsService.AsyncDataServices;
 using CommandsService.Data;
 using CommandsService.EventProcessing;
+using CommandsService.SyncDataServices.Grpc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -20,6 +21,7 @@ services.AddScoped<ICommandRepo, CommandRepo>();
 services.AddHostedService<MessageBusSuscriber>();
 services.AddControllers();
 services.AddSingleton<IEventProcessor, EventProcessor>();
+services.AddScoped<IPlatfromDataCLient, PlatfromDataClient>();
 
 services.AddEndpointsApiExplorer();
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -43,6 +45,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
+PrepDb.PrePopulation(app);
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"

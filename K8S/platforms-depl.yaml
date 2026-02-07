@@ -28,5 +28,10 @@ spec:
     app: platformservice
   ports:
     - protocol: TCP
+      name: platformservice
       port: 8080
       targetPort: 8080
+    - protocol: TCP
+      name: platformservice-grpc
+      port: 666
+      targetPort: 666
