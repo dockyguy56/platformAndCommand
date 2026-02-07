@@ -1,4 +1,8 @@
+using CommandsService.AsyncDataServices;
+using CommandsService.Data;
+using CommandsService.EventProcessing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +15,18 @@ var services = builder.Services;
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 services.AddOpenApi();
 
+services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
+services.AddScoped<ICommandRepo, CommandRepo>();
+services.AddHostedService<MessageBusSuscriber>();
 services.AddControllers();
+services.AddSingleton<IEventProcessor, EventProcessor>();
+
 services.AddEndpointsApiExplorer();
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-services.AddSwaggerGen(); //maybe add some options later
+services.AddSwaggerGen( c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CommandsService", Version = "v1" });
+});
 
 var app = builder.Build();
 

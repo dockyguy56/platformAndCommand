@@ -1,22 +1,40 @@
 using PlatformService.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using PlatformService.SyncDataServices.Http;
+using Microsoft.OpenApi;
+using PlatformService.AsyncDataServices;
+;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 services.AddOpenApi();
-services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
+if (builder.Environment.IsProduction())
+{
+    Console.WriteLine("--> Using SqlServer Db");
+    services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("PlatformSqlConnection")));
+}
+else
+{
+    Console.WriteLine("--> Using InMem Db");
+     services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
+}
 
 services.AddScoped<IPlatformRepo, PlatformRepo>();
 services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
-
+services.AddSingleton<IMessageBusClient, MessageBusAdapter>();
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-services.AddSwaggerGen(); //maybe add some options later
+services.AddSwaggerGen( c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlatformService", Version = "v1" });
+}); //maybe add some options later
 
 
 var app = builder.Build();
@@ -53,7 +71,8 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
-PrepDb.PrepPopulation(app);
+
+PrepDb.PrepPopulation(app, app.Environment.IsProduction());
 
 app.Run();
 
