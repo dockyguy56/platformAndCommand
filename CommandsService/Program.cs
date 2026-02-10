@@ -2,6 +2,7 @@ using CommandsService.AsyncDataServices;
 using CommandsService.Data;
 using CommandsService.EventProcessing;
 using CommandsService.SyncDataServices.Grpc;
+using CommandsService.SyncDataServices.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -19,6 +20,7 @@ services.AddOpenApi();
 services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMem"));
 services.AddScoped<ICommandRepo, CommandRepo>();
 services.AddHostedService<MessageBusSuscriber>();
+services.AddHostedService<KafkaConsumer>();
 services.AddControllers();
 services.AddSingleton<IEventProcessor, EventProcessor>();
 services.AddScoped<IPlatfromDataCLient, PlatfromDataClient>();

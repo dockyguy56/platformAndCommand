@@ -5,6 +5,7 @@ using PlatformService.SyncDataServices.Http;
 using Microsoft.OpenApi;
 using PlatformService.AsyncDataServices;
 using PlatformService.SyncDataServices.Grpc;
+using PlatformService.SyncDataServices.Kafka;
 ;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,8 @@ else
 services.AddScoped<IPlatformRepo, PlatformRepo>();
 services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 services.AddSingleton<IMessageBusClient, MessageBusAdapter>();
+services.AddSingleton<IKafkaProducer, KafkaProducer>();
+
 services.AddGrpc();
 services.AddControllers();
 services.AddEndpointsApiExplorer();
